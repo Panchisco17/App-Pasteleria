@@ -59,7 +59,7 @@ fun CatalogoFormScreen(
 
     //observar los datos en tiempo real
 
-    val catalogos: List<Catalogo> by viewModel.catalogos.collectAsState()
+    val catalogos: List<Catalogo> by viewModel.pasteles.collectAsState()
 
     Scaffold (
         bottomBar = {

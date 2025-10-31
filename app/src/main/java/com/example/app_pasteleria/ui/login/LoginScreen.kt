@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -71,7 +70,7 @@ fun LoginScreen(
         Scaffold (
             // Crea Estuctra basica de la pantalla Se define topBar, BottomBar
             topBar = {
-                TopAppBar(title = {Text("Mi Primer App",
+                TopAppBar(title = {Text("Pasteleria Mil Sabores",
                     color =MaterialTheme.colorScheme.onPrimary,
                 )})
 
@@ -95,7 +94,7 @@ fun LoginScreen(
                 //Define  que elementos dentro la columna estaran separados por 20.dp
             )// fin column
             {// inicio Contenido
-                Text(text="Bienvenido !",
+                Text(text="Inicio de sesión",
                     style= MaterialTheme.typography.headlineMedium,
                     color=MaterialTheme.colorScheme.primary
 
@@ -106,7 +105,7 @@ fun LoginScreen(
 
 
                 Image(  // insertar una imagen en la interfaz
-                    painter= painterResource(id = R.drawable.logoduoc),
+                    painter= painterResource(id = R.drawable.logo),
                     contentDescription = "Logo App",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,34 +137,45 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 )// Fin Row
                 {// Aplica row
-                    Text("texto uno",
+                    Text("Ingrese su correo electrónico",
                         style =MaterialTheme.typography.bodyLarge.copy(
                             color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
                         modifier = Modifier
                             .padding(end=8.dp)
                     )// fin texto 1
-
-
-                    Text("texto dos",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )// fin texto 1
-
 
                 } // fin Aplica row
 
                 OutlinedTextField(
                     value = state.username,
                     onValueChange = vm::onUsernameChange,
-                    label ={Text("Usuario")},
+                    label ={Text("Correo Electrónico")},
                     singleLine = true ,
                     modifier = Modifier.fillMaxWidth(0.95f)
 
+
+
                 )//fin de lined text field para usuario
+
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                )// Fin Row
+                {// Aplica row
+                    Text("Ingrese su contraseña",
+                        style =MaterialTheme.typography.bodyLarge.copy(
+                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
+                            fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                            .padding(end=8.dp)
+                    )// fin texto 1
+
+                } // fin Aplica row
+
                 OutlinedTextField(
                     value = state.password,
                     onValueChange = vm::onPasswordChange,

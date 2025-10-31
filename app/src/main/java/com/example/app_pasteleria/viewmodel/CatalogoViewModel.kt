@@ -12,11 +12,11 @@ class CatalogoViewModel : ViewModel(){
     private val _pasteles = MutableStateFlow<List<Catalogo>>(emptyList())
     val pasteles: StateFlow<List<Catalogo>> = _pasteles.asStateFlow()
 
-    fun guardarProducto(catalogo: Catalogo){
+    fun guardarPastel(catalogo: Catalogo){
         viewModelScope.launch {
             // guardar en memoria
 
-            val nuevaLista = _pasteles.value + pasteles
+            val nuevaLista = _pasteles.value + catalogo
             _pasteles.value = nuevaLista
         }
 
