@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.Grass
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.LunchDining
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.BakeryDining
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -44,79 +41,44 @@ fun DrawerMenu(
         ) // fin box
         { // inicio contenido
             Text(
-                text = "Categorias user:$username",
+                text = "Catálogo de productos",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
+                    .align(Alignment.Center)
             )
         } // fin contenido
+
         // LazyColumn: crear lista de elementos que se pueden desplazar verticalmente
         LazyColumn(modifier = Modifier.weight(1f)){
+
             item { // inicio item 1
                 NavigationDrawerItem(
-                    label = { Text("Hamburguesa Clásica")},
+                    label = { Text("Torta Cuadrada de Frutas")},
                     selected = false,
                     onClick = {
-                        val nombre = Uri.encode("Hamburguesa Clásica")
-                        val precio = "5000"
-                        navController.navigate("ProductoFormScreen/$nombre/$precio")
+                        val nombre = Uri.encode("Torta Cuadrada de Frutas")
+                        val precio = "50000"
+                        navController.navigate("CatalogoFormScreen/$nombre/$precio")
                     }, // fin OnClick
-                    icon = { Icon(Icons.Default.Fastfood , contentDescription = "Clásica") }
+                    icon = { Icon(Icons.Default.Cake , contentDescription = "Torta Frutas") }
                 )
             } // fin item 1
 
-            item { // inicio item 2
+            item { // inicio item 1
                 NavigationDrawerItem(
-                    label = { Text("Hamburguesa BBQ")},
+                    label = { Text("Torta Cuadrada de Chocolate")},
                     selected = false,
                     onClick = {
-
-                        /* accion futura*/
-
+                        val nombre = Uri.encode("Torta Cuadrada de Chocolate")
+                        val precio = "45000"
+                        navController.navigate("CatalogoFormScreen/$nombre/$precio")
                     }, // fin OnClick
-                    icon = { Icon(Icons.Default.LunchDining , contentDescription = "BBQ") }
+                    icon = { Icon(Icons.Default.Cake , contentDescription = "Torta Chocolate") }
                 )
-            } // fin item 2
+            } // fin item 1
 
-            item { // inicio item 3
-                NavigationDrawerItem(
-                    label = { Text("Hamburguesa Veggie")},
-                    selected = false,
-                    onClick = {
 
-                        /* accion futura*/
-
-                    }, // fin OnClick
-                    icon = { Icon(Icons.Default.Grass , contentDescription = "Veggie") }
-                )
-            } // fin item 3
-
-            item { // inicio item 4
-                NavigationDrawerItem(
-                    label = { Text("Hamburguesa Picante")},
-                    selected = false,
-                    onClick = {
-
-                        /* accion futura*/
-
-                    }, // fin OnClick
-                    icon = { Icon(Icons.Default.LocalFireDepartment , contentDescription = "Picante") }
-                )
-            } // fin item 4
-
-            item { // inicio item 5
-                NavigationDrawerItem(
-                    label = { Text("Hamburguesa Doble")},
-                    selected = false,
-                    onClick = {
-
-                        /* accion futura*/
-
-                    }, // fin OnClick
-                    icon = { Icon(Icons.Default.Star , contentDescription = "Doble") }
-                )
-            } // fin item 5
 
         } // fin LazyColumn
 

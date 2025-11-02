@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -50,6 +52,7 @@ fun LoginScreen(
 ){
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
 
     val ColorScheme = darkColorScheme(
         primary= Color(0xFF98222E),
@@ -76,7 +79,7 @@ fun LoginScreen(
                     .fillMaxSize()
                     .padding(16.dp)
                     .background(Color(0xFFF0F0F0)), // gris Claro
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 Text(text="Inicio de sesión",
@@ -103,8 +106,7 @@ fun LoginScreen(
                     )
                 }
 
-                // *** ESPACIO REDUCIDO ***
-                // Este espaciador separa la imagen del primer Row
+
                 Spacer(modifier = Modifier.height(30.dp))
 
 
@@ -165,6 +167,23 @@ fun LoginScreen(
                 )
 
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .padding(top = 8.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Checkbox(
+                        checked = rememberMe, // Lee el estado
+                        onCheckedChange = { isChecked -> rememberMe = isChecked }
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Recordar contraseña",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
                 Button(onClick = {
                     vm.submit { user ->
@@ -183,14 +202,30 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                TextButton(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+
+                    ){
+                    Text("¿Aún no tienes cuenta?",
+                        style =MaterialTheme.typography.bodyLarge.copy(
+                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
+                            fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                    )
+                }
+
+                Button(
                     onClick = {
                         navController.navigate("register")
                     },
                     enabled = !state.isLoading,
                     modifier = Modifier.fillMaxWidth(0.6f)
                 ) {
-                    Text("Registrarse")
+                    Text("Crea una nueva cuenta")
                 }
 
 
