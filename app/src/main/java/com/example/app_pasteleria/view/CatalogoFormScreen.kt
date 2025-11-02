@@ -140,20 +140,17 @@ fun CatalogoFormScreen(
                     val catalogo= Catalogo(
                         nombre = nombre,
                         precio = precio,
-                        cantidad = cantidad.text ,
-                        direccion = direccion.text,
-                        conPapas = conPapas,
-                        agrandarBebida = agrandarBebida
+                        cantidad = cantidad.text
 
                     )
                     // hace la magia
                     viewModel.guardarPastel(catalogo)
 
                     // limpiar datos
-                    cantidad= TextFieldValue("")
-                    direccion= TextFieldValue("")
-                    conPapas= false
-                    agrandarBebida= false
+                    // cantidad= TextFieldValue("")
+                    //direccion= TextFieldValue("")
+                    //conPapas= false
+                    //agrandarBebida= false
 
 
                 },
@@ -189,11 +186,7 @@ fun CatalogoFormScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             ) // fin Text2
 
-                            // Text3
-                            Text(
-                                text = "Dirección: ${catalogo.direccion}",
-                                style = MaterialTheme.typography.bodyMedium
-                            ) // fin Text3
+
 
                         } // fin contenido
 
