@@ -121,16 +121,6 @@ fun LoginScreen(
                     contentScale = ContentScale.Fit
                 )
 
-                if (state.error != null){
-                    Spacer (Modifier.height(8.dp))
-                    Text(
-                        text = state.error?:"",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-
                 Spacer(modifier = Modifier.height(30.dp))
 
 
@@ -191,6 +181,14 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
 
+                if (state.error != null){
+                    Spacer (Modifier.height(8.dp))
+                    Text(
+                        text = state.error?:"",
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 Row(
                     modifier = Modifier
