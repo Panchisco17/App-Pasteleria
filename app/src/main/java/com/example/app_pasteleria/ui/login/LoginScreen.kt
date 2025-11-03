@@ -3,6 +3,7 @@ package com.example.app_pasteleria.ui.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,18 +31,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import com.example.app_pasteleria.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,19 +63,32 @@ fun LoginScreen(
     var rememberMe by remember { mutableStateOf(false) }
 
     val ColorScheme = darkColorScheme(
-        primary= Color(0xFF98222E),
+        primary= Color(0xFF623608),
+        secondary = Color(0xFF7C460D),
+        onSurface = Color(0xFFB9863C),
+        surface = Color(0xFFEAD3AC),
+        background = Color(0xFFEAD3AC),
         onPrimary = Color.White,
-        onSurface = Color(0xFF333333), //Gris
-    )
 
+    )
 
     MaterialTheme(
         colorScheme = ColorScheme
     ){
         Scaffold (
+
+            containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopAppBar(title = {Text("Pasteleria Mil Sabores",
-                    color =MaterialTheme.colorScheme.onPrimary,
+                    color =MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+
+
                 )})
             }
         )
@@ -78,13 +99,16 @@ fun LoginScreen(
                     .padding( innerPadding)
                     .fillMaxSize()
                     .padding(16.dp)
-                    .background(Color(0xFFF0F0F0)), // gris Claro
+                    .background(MaterialTheme.colorScheme.background),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 Text(text="Inicio de sesión",
                     style= MaterialTheme.typography.headlineMedium,
-                    color=MaterialTheme.colorScheme.primary
+                    color=MaterialTheme.colorScheme.primary,
+                    fontFamily = FontFamily.Cursive,
+                    fontSize = 35.sp
+
                 )
 
 
@@ -118,7 +142,7 @@ fun LoginScreen(
                 ){
                     Text("Ingrese su correo electrónico",
                         style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
+                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
                         modifier = Modifier
                             .padding(end=8.dp)
@@ -128,9 +152,10 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = state.username,
                     onValueChange = vm::onUsernameChange,
-                    label ={Text("Correo Electrónico")},
+                    label ={Text("Correo Electrónico", color = MaterialTheme.colorScheme.onSurface)},
                     singleLine = true ,
-                    modifier = Modifier.fillMaxWidth(0.95f)
+                    modifier = Modifier.fillMaxWidth(0.95f),
+
                 )
 
 
@@ -142,7 +167,7 @@ fun LoginScreen(
                 ){
                     Text("Ingrese su contraseña",
                         style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
+                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
                         modifier = Modifier
                             .padding(end=8.dp)
@@ -152,7 +177,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = state.password,
                     onValueChange = vm::onPasswordChange,
-                    label ={Text("Contraseña")},
+                    label ={Text("Contraseña", color = MaterialTheme.colorScheme.onSurface)},
                     singleLine = true ,
                     visualTransformation = if (showPass) VisualTransformation.None else
                         PasswordVisualTransformation(),
@@ -176,12 +201,13 @@ fun LoginScreen(
                 ) {
                     Checkbox(
                         checked = rememberMe, // Lee el estado
-                        onCheckedChange = { isChecked -> rememberMe = isChecked }
+                        onCheckedChange = { isChecked -> rememberMe = isChecked },
+
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(text = "Recordar contraseña",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
 
@@ -212,7 +238,7 @@ fun LoginScreen(
                     ){
                     Text("¿Aún no tienes cuenta?",
                         style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
+                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
                         modifier = Modifier
                     )
