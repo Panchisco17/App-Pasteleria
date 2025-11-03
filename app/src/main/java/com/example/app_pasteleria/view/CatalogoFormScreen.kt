@@ -3,6 +3,7 @@ package com.example.app_pasteleria.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -80,7 +82,7 @@ fun CatalogoFormScreen(
 ) {// Inicio
 
     var cantidad by remember { mutableStateOf(TextFieldValue("")) }
-    var descuento by remember { mutableStateOf(TextFieldValue("")) }
+    var descuentoInput by remember { mutableStateOf(TextFieldValue("")) }
     var aplicarDescuento by remember { mutableStateOf(false) }
 
     val viewModel: CatalogoViewModel = viewModel()
@@ -88,6 +90,14 @@ fun CatalogoFormScreen(
     val imageId = getProductoImagenId(nombre)
     val topBarColor = Color(0xFF7C460D)
     val topBarContentColor = MaterialTheme.colorScheme.onPrimary
+
+    val precioFinalString = remember(descuentoInput.text, aplicarDescuento) {
+        if (aplicarDescuento) {
+            viewModel.calcularPrecioFinal(precio, descuentoInput.text)
+        } else {
+            precio
+        }
+    }
 
     val ColorScheme = darkColorScheme(
         primary = Color(0xFF623608),
@@ -164,10 +174,31 @@ fun CatalogoFormScreen(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
                     )
-                    Text(
-                        text = "Precio: $$precio", style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = if (precio == precioFinalString) {
+                            Arrangement.Center
+                        } else {
+                            Arrangement.Center
+                        }
+                    ) {
+                        Text(
+                            text = "Precio: $$precio",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (precio != precioFinalString) Color.Gray else MaterialTheme.colorScheme.primary,
+                        )
+
+                        if (precio != precioFinalString) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Precio final: $$precioFinalString",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -195,7 +226,7 @@ fun CatalogoFormScreen(
                             onCheckedChange = {
                                 aplicarDescuento = it
                                 if (!it) {
-                                    descuento = TextFieldValue("")
+                                    descuentoInput = TextFieldValue("")
                                 }
                             }
                         )
@@ -208,8 +239,8 @@ fun CatalogoFormScreen(
 
                     if (aplicarDescuento) {
                         OutlinedTextField(
-                            value = descuento,
-                            onValueChange = { descuento = it },
+                            value = descuentoInput,
+                            onValueChange = { descuentoInput = it },
                             label = {
                                 Text(
                                     "Código de descuento",
@@ -224,16 +255,21 @@ fun CatalogoFormScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     val isButtonEnabled = if (aplicarDescuento) {
-                        cantidad.text.isNotBlank() && descuento.text.isNotBlank()
+                        cantidad.text.isNotBlank() && descuentoInput.text.isNotBlank()
                     } else {
                         cantidad.text.isNotBlank()
                     }
 
                     Button(
                         onClick = {
+                            val precioAGuardar = viewModel.calcularPrecioFinal(
+                                precioOriginal = precio,
+                                codigoDescuento = if (aplicarDescuento) descuentoInput.text else null
+                            )
+
                             val catalogo = Catalogo(
                                 nombre = nombre,
-                                precio = precio,
+                                precio = precioAGuardar,
                                 cantidad = cantidad.text
                             )
                             viewModel.guardarPastel(catalogo)
@@ -264,7 +300,7 @@ fun CatalogoFormScreen(
                                 )
                                 {
                                     Text(
-                                        text = "${catalogo.nombre} - ${catalogo.precio}",
+                                        text = "${catalogo.nombre} - $${catalogo.precio}", // Muestra el precio guardado
                                         style = MaterialTheme.typography.bodyLarge
                                     )
 
@@ -286,7 +322,7 @@ fun CatalogoFormScreen(
                     }
                 } //Fin Contenido
 
-                // FOOTER
+                // footer
                 Text(
                     text = "@ 2025 Pasteleria Mil Sabores",
                     color = MaterialTheme.colorScheme.onSecondary,
@@ -306,7 +342,6 @@ fun CatalogoFormScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductoFormScreen() {
-    // Preview básico para testing
     CatalogoFormScreen(
         navController = rememberNavController(),
         nombre = "Torta Cuadrada de Chocolate",
