@@ -81,7 +81,6 @@ fun CatalogoFormScreen(
 
     var cantidad by remember { mutableStateOf(TextFieldValue("")) }
     var descuento by remember { mutableStateOf(TextFieldValue("")) }
-    // 1. Nuevo estado para el Checkbox
     var aplicarDescuento by remember { mutableStateOf(false) }
 
     val viewModel: CatalogoViewModel = viewModel()

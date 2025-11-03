@@ -5,21 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app_pasteleria.data.repository.AuthRepository // Asumo esta importación
-import com.example.app_pasteleria.ui.register.data.RegisterUiState // La clase que enviaste
+import com.example.app_pasteleria.data.repository.AuthRepository
+import com.example.app_pasteleria.ui.register.data.RegisterUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 class RegisterViewModel(
-    private val repo: AuthRepository = AuthRepository() // Reutilizando tu AuthRepository
+    private val repo: AuthRepository = AuthRepository()
 ) : ViewModel() {
 
     var uiState by mutableStateOf(RegisterUiState())
-
 
     fun onNombreChange(value: String) {
         uiState = uiState.copy(nombre = value, error = null)
@@ -37,60 +35,71 @@ class RegisterViewModel(
         uiState = uiState.copy(password = value, error = null)
     }
 
-    fun onConfirmPasswordChange(value: String) {
-        uiState = uiState.copy(confirmPassword = value, error = null)
-    }
-
     fun onFechaNacimientoChange(value: String) {
         uiState = uiState.copy(fechaNacimiento = value, error = null)
     }
 
-    fun onCodigoDescuentoChange(value: String) {
-        uiState = uiState.copy(codigoDescuento = value, error = null)
+    private fun hoyCumple(fechaNacimiento: String): Boolean {
+        // Renombramos 'formatter' a 'formateador'
+        val formateador = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        return try {
+            // Renombramos 'birthDate' a 'fechaNacimientoUsuario'
+            val fechaNacimientoUsuario = LocalDate.parse(fechaNacimiento, formateador)
+            // Renombramos 'currentDate' a 'fechaActual'
+            val fechaActual = LocalDate.now()
+
+            // La lógica de comparación se mantiene: Día y Mes del usuario vs. Día y Mes actual
+            fechaNacimientoUsuario.dayOfMonth == fechaActual.dayOfMonth && fechaNacimientoUsuario.month == fechaActual.month
+        } catch (e: DateTimeParseException) {
+            false
+        }
     }
 
-    private fun calculateAge(dateOfBirth: String): Int {
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        try {
-            val birthDate = LocalDate.parse(dateOfBirth, formatter)
-            val currentDate = LocalDate.now()
-            return Period.between(birthDate, currentDate).years
-        } catch (e: DateTimeParseException) {
-            // Retorna 0 si el formato es incorrecto, para no aplicar el descuento
-            return 0
-        }
+    fun ocultarMensajeCumple() {
+        uiState = uiState.copy(mensajeCumple = false)
     }
 
     fun submit(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
+            uiState = uiState.copy(isLoading = true, error = null, mensajeCumple = false)
 
-            // 1. Validaciones Preliminares
-            if (uiState.password != uiState.confirmPassword) {
-                uiState = uiState.copy(isLoading = false, error = "Las contraseñas no coinciden.")
+            if (uiState.nombre.isBlank() || uiState.apellido.isBlank() || uiState.email.isBlank() || uiState.password.isBlank() || uiState.fechaNacimiento.isBlank()) {
+                uiState = uiState.copy(isLoading = false, error = "Complete todos los campos obligatorios.")
                 return@launch
             }
 
-            if (uiState.nombre.isBlank() || uiState.email.isBlank() || uiState.password.isBlank()) {
-                uiState = uiState.copy(isLoading = false, error = "Complete los campos obligatorios.")
+            if (uiState.password.length < 3) {
+                uiState = uiState.copy(isLoading = false, error = "La contraseña debe tener al menos 3 caracteres.")
                 return@launch
             }
-            val age = calculateAge(uiState.fechaNacimiento)
-            val descuento50Anios = age >= 50
-            val codigo = uiState.codigoDescuento.trim()
-            val descuentoFelices50 = codigo.equals("felices50", ignoreCase = true)
-            val descuentoDuoc = uiState.email.trim().endsWith("@duocuc.cl", ignoreCase = true)
+
+            val isDuocEmail = uiState.email.trim().endsWith("@duocuc.cl", ignoreCase = true)
+            val isBirthday = hoyCumple(uiState.fechaNacimiento)
+
+            val descuentoDuoc = isDuocEmail
+            val descuento50Anios = false
+            val descuentoFelices50 = false
+
 
             try {
-                uiState = uiState.copy(
-                    isLoading = false,
-                    descuento50Anios = descuento50Anios,
-                    descuentoFelices50 = descuentoFelices50,
-                    descuentoDuoc = descuentoDuoc,
-                    error = if (!codigo.isBlank() && !descuentoFelices50) "Código de descuento inválido" else null
-                )
+                val username = uiState.email.trim()
+                val registrationOk = repo.register(username, uiState.password)
 
-                onSuccess()
+                delay(1000)
+
+                if (registrationOk) {
+                    uiState = uiState.copy(
+                        isLoading = false,
+                        descuento50Anios = descuento50Anios,
+                        descuentoFelices50 = descuentoFelices50,
+                        descuentoDuoc = descuentoDuoc,
+                        mensajeCumple = isDuocEmail && isBirthday,
+                        error = null
+                    )
+                    onSuccess()
+                } else {
+                    uiState = uiState.copy(isLoading = false, error = "El correo ya está registrado.")
+                }
 
             } catch (e: Exception) {
                 uiState = uiState.copy(isLoading = false, error = "Fallo el registro: ${e.message}")

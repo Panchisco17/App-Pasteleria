@@ -2,12 +2,19 @@ package com.example.app_pasteleria.data.repository
 
 import com.example.app_pasteleria.data.model.Credential
 
-class AuthRepository (
-    private val validCredential: Credential = Credential.Admin
-){
+private val usuarios = Credential.usuarios.toMutableList()
+class AuthRepository {
     fun login (username:String,password:String): Boolean {
-        //validad las credenciales que traemos desde el modelo
-        return username == validCredential.username && password == validCredential.password
+        return usuarios.any { it.username == username && it.password == password }
     }
 
-}//fin del fun
+    fun register(username: String, password: String): Boolean {
+        if (usuarios.any { it.username == username }) {
+            return false // si el Usuario ya existe
+        }
+        val newUser = Credential(username, password)
+        usuarios.add(newUser)
+        return true
+    }
+
+}//fin del class
