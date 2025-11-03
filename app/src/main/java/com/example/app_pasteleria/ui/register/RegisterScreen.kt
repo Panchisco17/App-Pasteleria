@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -49,6 +50,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay // Necesitas este import para la solución
+import kotlinx.coroutines.launch // Necesitas este import para la solución
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -99,7 +102,7 @@ fun RegisterScreen(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    )})
+                )})
             },
             snackbarHost = { SnackbarHost(snackbarHostState) }
         )
@@ -289,10 +292,6 @@ fun RegisterScreen(
                 Button(
                     onClick = {
                         vm.submit {
-                            navController.navigate(route = "login") {
-                                popUpTo("register") { inclusive = true }
-                                launchSingleTop = true
-                            }
                         }
                     },
                     enabled = !state.isLoading && aceptarTerminos,
@@ -360,8 +359,17 @@ fun RegisterScreen(
                 LaunchedEffect(Unit) {
                     snackbarHostState.showSnackbar(
                         message = "¡Felicidades! Por tu cumpleaños tienes un pastel GRATIS por ser DUOC.CL.",
-                        actionLabel = "Aceptar"
+                        actionLabel = "Aceptar",
+                        duration = SnackbarDuration.Long
                     )
+
+                    delay(1000L)
+
+                    navController.navigate(route = "login") {
+                        popUpTo("register") { inclusive = true }
+                        launchSingleTop = true
+                    }
+
                     vm.ocultarMensajeCumple()
                 }
             }

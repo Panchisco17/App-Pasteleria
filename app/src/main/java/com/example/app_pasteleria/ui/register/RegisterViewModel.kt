@@ -40,15 +40,11 @@ class RegisterViewModel(
     }
 
     private fun hoyCumple(fechaNacimiento: String): Boolean {
-        // Renombramos 'formatter' a 'formateador'
         val formateador = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         return try {
-            // Renombramos 'birthDate' a 'fechaNacimientoUsuario'
             val fechaNacimientoUsuario = LocalDate.parse(fechaNacimiento, formateador)
-            // Renombramos 'currentDate' a 'fechaActual'
             val fechaActual = LocalDate.now()
 
-            // La lógica de comparación se mantiene: Día y Mes del usuario vs. Día y Mes actual
             fechaNacimientoUsuario.dayOfMonth == fechaActual.dayOfMonth && fechaNacimientoUsuario.month == fechaActual.month
         } catch (e: DateTimeParseException) {
             false
