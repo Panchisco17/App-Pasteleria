@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox // <-- Importación necesaria
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -69,9 +69,7 @@ private fun getProductoImagenId(nombre: String): Int {
 
         else -> R.drawable.logo
     }
-
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
@@ -106,9 +104,7 @@ fun CatalogoFormScreen(
         colorScheme = ColorScheme
     ) {
 
-
         Scaffold(
-
 
             topBar = {
                 CenterAlignedTopAppBar(
@@ -161,7 +157,6 @@ fun CatalogoFormScreen(
                             .height(250.dp)
                     )
 
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
@@ -176,7 +171,6 @@ fun CatalogoFormScreen(
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
-
 
                     OutlinedTextField(
                         value = cantidad,
@@ -236,7 +230,6 @@ fun CatalogoFormScreen(
                         cantidad.text.isNotBlank()
                     }
 
-
                     Button(
                         onClick = {
                             val catalogo = Catalogo(
@@ -294,7 +287,6 @@ fun CatalogoFormScreen(
                     }
                 } //Fin Contenido
 
-
                 // FOOTER
                 Text(
                     text = "@ 2025 Pasteleria Mil Sabores",
@@ -305,11 +297,9 @@ fun CatalogoFormScreen(
                         .background(Color(0xFFCEB487))
                         .padding(16.dp),
                     textAlign = TextAlign.Center
-
                 )
 
             } // fin inner
-
         }//fin
     }
 }

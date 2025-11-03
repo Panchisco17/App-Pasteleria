@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.app_pasteleria.ui.home.MuestraDatosScreen
 import com.example.app_pasteleria.ui.login.LoginScreen
+import com.example.app_pasteleria.ui.register.RegisterScreen
 import com.example.app_pasteleria.view.DrawerMenu
 import com.example.app_pasteleria.view.CatalogoFormScreen
 
@@ -23,6 +24,10 @@ fun AppNav(){
             LoginScreen(navController = navController)
 
         }    //composable
+
+        composable("register") {
+            RegisterScreen(navController = navController)
+        }
 
         composable(
             route="DrawerMenu/{username}",
