@@ -1,6 +1,8 @@
 package com.example.app_pasteleria.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,16 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox // <-- Importación necesaria
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,15 +31,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.app_pasteleria.data.model.Catalogo
 import com.example.app_pasteleria.viewmodel.CatalogoViewModel
+import com.example.app_pasteleria.R
+
+@Composable
+private fun getProductoImagenId(nombre: String): Int {
+    return when (nombre) {
+        "Torta Cuadrada de Chocolate" -> R.drawable.torta_cuadrada_chocolate
+        "Torta Cuadrada de Frutas" -> R.drawable.torta_cuadrada_frutas
+        "Torta circular de manjar" -> R.drawable.torta_circular_manjar
+        "Torta circular de vainilla" -> R.drawable.torta_vainilla
+        "Tiramisú clásico" -> R.drawable.tiramisu
+        "Mousse de chocolate" -> R.drawable.mousse
+        "Torta de naranja sin azúcar" -> R.drawable.torta_naranja
+        "Cheesecake sin azúcar" -> R.drawable.cheesecake
+        "Empanada de mánzana" -> R.drawable.empanada_manzana
+        "Tarta Santiago" -> R.drawable.tarta_santiago
+        "Brownie sin glúten" -> R.drawable.brownie
+        "Pan sin glúten" -> R.drawable.pan
+        "Torta vegana de chocolate" -> R.drawable.torta_vegana
+        "Galletas veganas" -> R.drawable.galletas_veganas
+        "Torta de Boda" -> R.drawable.torta_boda
+        "Torta de cumpleaños" -> R.drawable.torta_cumple
+
+        else -> R.drawable.logo
+    }
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,171 +78,241 @@ import com.example.app_pasteleria.viewmodel.CatalogoViewModel
 fun CatalogoFormScreen(
     navController: NavController,
     nombre:String,
-    precio:String
-){// Inicio
+    precio: String
+) {// Inicio
 
-    var cantidad by remember{ mutableStateOf(TextFieldValue("")) }
-    var direccion by remember{ mutableStateOf(TextFieldValue("")) }
-
-    var conPapas  by remember{ mutableStateOf(false) }
-    var agrandarBebida  by remember{ mutableStateOf(false) }
-
-    // coneccion a viewmodel
+    var cantidad by remember { mutableStateOf(TextFieldValue("")) }
+    var descuento by remember { mutableStateOf(TextFieldValue("")) }
+    // 1. Nuevo estado para el Checkbox
+    var aplicarDescuento by remember { mutableStateOf(false) }
 
     val viewModel: CatalogoViewModel = viewModel()
-
-    //observar los datos en tiempo real
-
     val catalogos: List<Catalogo> by viewModel.pasteles.collectAsState()
+    val imageId = getProductoImagenId(nombre)
+    val topBarColor = Color(0xFF7C460D)
+    val topBarContentColor = MaterialTheme.colorScheme.onPrimary
 
-    Scaffold (
-        bottomBar = {
-            BottomAppBar {
-                // Contenido Barra superior
-            } // fin Bootom App
-        }// fin bottom
+    val ColorScheme = darkColorScheme(
+        primary = Color(0xFF623608),
+        secondary = Color(0xFF7C460D),
+        onSurface = Color(0xFFB9863C),
+        surface = Color(0xFFEAD3AC),
+        background = Color(0xFFEAD3AC),
+        onPrimary = Color.White,
+        onSecondary = Color.Black
 
-    ) // fin Scaffold
-
-    {// inicio inner
-            innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        )// fin Column
-        { // Inicio Contenido
-
-            Image(
-                painter= painterResource(id= android.R.drawable.ic_menu_gallery),
-                contentDescription = "Imagen Producto",
-                modifier=Modifier
-                    .height(150.dp)
-                    .fillMaxWidth()
-            )// fin Image
-
-            Spacer(modifier =Modifier.height(16.dp))
-
-            Text(text=nombre, style= MaterialTheme.typography.headlineSmall)
-            Text(text="Precio: $precio", style= MaterialTheme.typography.bodyLarge)
-
-            Spacer(modifier =Modifier.height(16.dp))
+    )
+    MaterialTheme(
+        colorScheme = ColorScheme
+    ) {
 
 
-            OutlinedTextField(
-                value=cantidad,
-                onValueChange = {cantidad = it},
-                //OutlinedTextField es un componente de entrada de texto
-                // se utiliza para permitir que el usuario ingrese un valor.
-
-                label ={Text("Cantidad")},
-                modifier = Modifier.fillMaxWidth()
-            ) // fin cantidad
-
-            OutlinedTextField(
-                value=direccion,
-                onValueChange = {direccion = it},
-                //OutlinedTextField es un componente de entrada de texto
-                // se utiliza para permitir que el usuario ingrese un valor.
-
-                label ={Text("Direccion")},
-                modifier = Modifier.fillMaxWidth()
-            ) // fin direccion
-
-            Row(verticalAlignment = Alignment.CenterVertically){
-                Checkbox(
-                    checked =conPapas,
-                    onCheckedChange = {conPapas = it}
-                )
-                Text("Agrandar Papas Fritas")
-            }// fin row 1
-
-            Row(verticalAlignment = Alignment.CenterVertically){
-                Checkbox(
-                    checked =agrandarBebida,
-                    onCheckedChange = {agrandarBebida = it}
-                )
-                Text("Agrandar Bebida")
-            }// fin row 2
-
-            Spacer(modifier =Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    val catalogo= Catalogo(
-                        nombre = nombre,
-                        precio = precio,
-                        cantidad = cantidad.text
-
-                    )
-                    // hace la magia
-                    viewModel.guardarPastel(catalogo)
-
-                    // limpiar datos
-                    // cantidad= TextFieldValue("")
-                    //direccion= TextFieldValue("")
-                    //conPapas= false
-                    //agrandarBebida= false
+        Scaffold(
 
 
-                },
-                enabled=cantidad.text.isNotBlank() && direccion.text.isNotBlank()
-            ) // fin Button
-            { // inicio texto
-                Text("Confirmar Pedido")
-            }// fin texto
-
-            Spacer(modifier =Modifier.height(16.dp))
-
-            // mostrar los productos guardados
-            Text("Pedidos Realizados: ", style = MaterialTheme.typography.headlineSmall)
-
-            if (catalogos.isNotEmpty()){
-                LazyColumn(modifier = Modifier.weight(1f)){
-                    items(catalogos){ catalogo ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = topBarColor,
+                        titleContentColor = topBarContentColor,
+                    ),
+                    title = {
+                        Text(
+                            text = "Confirmar Pedido",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontSize = 40.sp,
+                                fontFamily = FontFamily.Cursive
+                            )
                         )
-                        { // inicio contenido
-                            // Text1
-                            Text(
-                                text = "${catalogo.nombre} - ${catalogo.precio}",
-                                style = MaterialTheme.typography.bodyLarge
-                            ) // fin Text1
-
-                            // Text2
-                            Text(
-                                text = "Cantidad: ${catalogo.cantidad}",
-                                style = MaterialTheme.typography.bodyMedium
-                            ) // fin Text2
-
-
-
-                        } // fin contenido
-
-                    } // fin items
-
-                } // Fin Lazy
-
-            } // fin if
-
-            else {
-                Text("No hay pedidos realizados",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium
+                    }
                 )
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.background
 
-        } //Fin Contenido
+        ) // fin Scaffold
 
-    } // fin inner
 
-}//fin
+        {// inicio inner
+                innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Inicio Contenido
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+
+                    Image(
+                        painter = painterResource(id = imageId),
+                        contentDescription = "Imagen Producto",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                    )
+
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = nombre,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = "Precio: $$precio", style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+
+                    OutlinedTextField(
+                        value = cantidad,
+                        onValueChange = { cantidad = it },
+                        label = {
+                            Text(
+                                "Cantidad",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { aplicarDescuento = !aplicarDescuento }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = aplicarDescuento,
+                            onCheckedChange = {
+                                aplicarDescuento = it
+                                if (!it) {
+                                    descuento = TextFieldValue("")
+                                }
+                            }
+                        )
+                        Text(
+                            text = "Aplicar Código de Descuento",
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    if (aplicarDescuento) {
+                        OutlinedTextField(
+                            value = descuento,
+                            onValueChange = { descuento = it },
+                            label = {
+                                Text(
+                                    "Código de descuento",
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val isButtonEnabled = if (aplicarDescuento) {
+                        cantidad.text.isNotBlank() && descuento.text.isNotBlank()
+                    } else {
+                        cantidad.text.isNotBlank()
+                    }
+
+
+                    Button(
+                        onClick = {
+                            val catalogo = Catalogo(
+                                nombre = nombre,
+                                precio = precio,
+                                cantidad = cantidad.text
+                            )
+                            viewModel.guardarPastel(catalogo)
+
+                        },
+                        enabled = isButtonEnabled
+                    )
+                    {
+                        Text("Agregar al carrito", color = MaterialTheme.colorScheme.onPrimary)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // mostrar los productos guardados
+                    Text(
+                        "Productos agregados: ",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+
+                    if (catalogos.isNotEmpty()) {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(catalogos) { catalogo ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp)
+                                )
+                                {
+                                    Text(
+                                        text = "${catalogo.nombre} - ${catalogo.precio}",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+
+                                    Text(
+                                        text = "Cantidad: ${catalogo.cantidad}",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+                        }
+
+                    } else {
+                        Text(
+                            "No hay productos agregados",
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } //Fin Contenido
+
+
+                // FOOTER
+                Text(
+                    text = "@ 2025 Pasteleria Mil Sabores",
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFCEB487))
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center
+
+                )
+
+            } // fin inner
+
+        }//fin
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -216,7 +320,7 @@ fun PreviewProductoFormScreen() {
     // Preview básico para testing
     CatalogoFormScreen(
         navController = rememberNavController(),
-        nombre = "Producto Ejemplo",
-        precio = "$10.00"
+        nombre = "Torta Cuadrada de Chocolate",
+        precio = "45000"
     )
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BakeryDining
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.Cookie
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +52,7 @@ fun DrawerMenu(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp) // dp: densidad de pixeles
+                .height(100.dp)
                 .background(Color(0xFF7C460D))
         ) // fin box
         { // inicio contenido
@@ -277,7 +278,7 @@ fun DrawerMenu(
                         val precio = "4500"
                         navController.navigate("CatalogoFormScreen/$nombre/$precio")
                     }, // fin OnClick
-                    icon = { Icon(Icons.Default.BakeryDining , contentDescription = "Galletas veganas", modifier = Modifier.size(itemIconSize)) },
+                    icon = { Icon(Icons.Default.Cookie , contentDescription = "Galletas veganas", modifier = Modifier.size(itemIconSize)) },
                     colors = itemColors
                 )
                 Divider(color = separador, thickness = 1.dp)
