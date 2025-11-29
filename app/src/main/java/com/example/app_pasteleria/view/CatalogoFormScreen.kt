@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -48,6 +49,17 @@ import androidx.navigation.compose.rememberNavController
 import com.example.app_pasteleria.data.model.Catalogo
 import com.example.app_pasteleria.viewmodel.CatalogoViewModel
 import com.example.app_pasteleria.R
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import com.example.app_pasteleria.utils.CameraPermissionHelper
+import com.example.app_pasteleria.viewmodel.QrViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
 
 @Composable
 private fun getProductoImagenId(nombre: String): Int {
@@ -79,11 +91,38 @@ fun CatalogoFormScreen(
     navController: NavController,
     nombre:String,
     precio: String
-) {// Inicio
+) {
 
     var cantidad by remember { mutableStateOf(TextFieldValue("")) }
     var descuentoInput by remember { mutableStateOf(TextFieldValue("")) }
     var aplicarDescuento by remember { mutableStateOf(false) }
+
+    var showQrScanner by remember { mutableStateOf(false) }
+    val qrViewModel: QrViewModel = viewModel()
+    val qrResult by qrViewModel.qrResult.observeAsState()
+    val context = LocalContext.current
+
+    var hasCameraPermission by remember {
+        mutableStateOf(CameraPermissionHelper.hasCameraPermission(context))
+    }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+        if (isGranted) {
+            showQrScanner = true
+        }
+    }
+
+    LaunchedEffect(qrResult) {
+        qrResult?.let { result ->
+            descuentoInput = TextFieldValue(result.content)
+            aplicarDescuento = true
+            showQrScanner = false
+            qrViewModel.clearResult()
+        }
+    }
 
     val viewModel: CatalogoViewModel = viewModel()
     val catalogos: List<Catalogo> by viewModel.pasteles.collectAsState()
@@ -91,7 +130,7 @@ fun CatalogoFormScreen(
     val topBarColor = Color(0xFF7C460D)
     val topBarContentColor = MaterialTheme.colorScheme.onPrimary
 
-    val precioFinalString = remember(descuentoInput.text, aplicarDescuento) {
+    val precioFinalUnitarioString = remember(descuentoInput.text, aplicarDescuento) {
         if (aplicarDescuento) {
             viewModel.calcularPrecioFinal(precio, descuentoInput.text)
         } else {
@@ -134,164 +173,200 @@ fun CatalogoFormScreen(
             },
             containerColor = MaterialTheme.colorScheme.background
 
-        ) // fin Scaffold
+        ) { innerPadding ->
 
-
-        {// inicio inner
-                innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            )
-            {
+            if (showQrScanner) {
+                QrScannerScreen(
+                    viewModel = qrViewModel,
+                    hasCameraPermission = hasCameraPermission,
+                    onRequestPermission = {
+                        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    },
+                    onClose = { showQrScanner = false },
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                )
+            } else {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
+                        .padding(innerPadding)
+                        .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Inicio Contenido
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-
-                    Image(
-                        painter = painterResource(id = imageId),
-                        contentDescription = "Imagen Producto",
+                )
+                {
+                    LazyColumn(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = nombre,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = if (precio == precioFinalString) {
-                            Arrangement.Center
-                        } else {
-                            Arrangement.Center
-                        }
+                            .weight(1f)
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "Precio: $$precio",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (precio != precioFinalString) Color.Gray else MaterialTheme.colorScheme.primary,
-                        )
-
-                        if (precio != precioFinalString) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Precio final: $$precioFinalString",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        item {
+                            Image(
+                                painter = painterResource(id = imageId),
+                                contentDescription = "Imagen Producto",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(250.dp)
                             )
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                    OutlinedTextField(
-                        value = cantidad,
-                        onValueChange = { cantidad = it },
-                        label = {
+                        item {
                             Text(
-                                "Cantidad",
-                                color = MaterialTheme.colorScheme.onSurface
+                                text = nombre,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
                             )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { aplicarDescuento = !aplicarDescuento }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = aplicarDescuento,
-                            onCheckedChange = {
-                                aplicarDescuento = it
-                                if (!it) {
-                                    descuentoInput = TextFieldValue("")
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = if (precio == precioFinalUnitarioString) {
+                                    Arrangement.Center
+                                } else {
+                                    Arrangement.Center
+                                }
+                            ) {
+                                Text(
+                                    text = "Precio: $$precio",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (precio != precioFinalUnitarioString) Color.Gray else MaterialTheme.colorScheme.primary,
+                                )
+
+                                if (precio != precioFinalUnitarioString) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Precio final: $$precioFinalUnitarioString",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
-                        )
-                        Text(
-                            text = "Aplicar Código de Descuento",
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                        }
 
-                    if (aplicarDescuento) {
-                        OutlinedTextField(
-                            value = descuentoInput,
-                            onValueChange = { descuentoInput = it },
-                            label = {
-                                Text(
-                                    "Código de descuento",
-                                    color = MaterialTheme.colorScheme.onSurface
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                        item {
+                            OutlinedTextField(
+                                value = cantidad,
+                                onValueChange = { cantidad = it },
+                                label = {
+                                    Text(
+                                        "Cantidad",
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { aplicarDescuento = !aplicarDescuento }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = aplicarDescuento,
+                                    onCheckedChange = {
+                                        aplicarDescuento = it
+                                        if (!it) {
+                                            descuentoInput = TextFieldValue("")
+                                        }
+                                    }
                                 )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                                Text(
+                                    text = "Aplicar Código de Descuento",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        if (aplicarDescuento) {
+                            item {
+                                OutlinedTextField(
+                                    value = descuentoInput,
+                                    onValueChange = { descuentoInput = it },
+                                    label = {
+                                        Text(
+                                            "Código de descuento",
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        IconButton(onClick = {
+                                            if (hasCameraPermission) {
+                                                showQrScanner = true
+                                            } else {
+                                                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.QrCodeScanner,
+                                                contentDescription = "Escanear Código QR",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
+                        }
 
-                    val isButtonEnabled = if (aplicarDescuento) {
-                        cantidad.text.isNotBlank() && descuentoInput.text.isNotBlank()
-                    } else {
-                        cantidad.text.isNotBlank()
-                    }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                    Button(
-                        onClick = {
-                            val precioAGuardar = viewModel.calcularPrecioFinal(
-                                precioOriginal = precio,
-                                codigoDescuento = if (aplicarDescuento) descuentoInput.text else null
+                        item {
+                            val isButtonEnabled = if (aplicarDescuento) {
+                                cantidad.text.isNotBlank() && descuentoInput.text.isNotBlank()
+                            } else {
+                                cantidad.text.isNotBlank()
+                            }
+
+                            Button(
+                                onClick = {
+                                    val precioUnitario = precioFinalUnitarioString.toDoubleOrNull() ?: 0.0
+                                    val cantidadInt = cantidad.text.toIntOrNull() ?: 1
+                                    val precioTotalAGuardar = (precioUnitario * cantidadInt).toString()
+
+                                    val catalogo = Catalogo(
+                                        nombre = nombre,
+                                        precio = precioTotalAGuardar,
+                                        cantidad = cantidad.text
+                                    )
+                                    viewModel.guardarPastel(catalogo)
+
+                                },
+                                enabled = isButtonEnabled
                             )
+                            {
+                                Text("Agregar al carrito", color = MaterialTheme.colorScheme.onPrimary)
+                            }
+                        }
 
-                            val catalogo = Catalogo(
-                                nombre = nombre,
-                                precio = precioAGuardar,
-                                cantidad = cantidad.text
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                        item {
+                            Text(
+                                "Productos agregados: ",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.secondary
                             )
-                            viewModel.guardarPastel(catalogo)
+                        }
 
-                        },
-                        enabled = isButtonEnabled
-                    )
-                    {
-                        Text("Agregar al carrito", color = MaterialTheme.colorScheme.onPrimary)
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // mostrar los productos guardados
-                    Text(
-                        "Productos agregados: ",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-
-                    if (catalogos.isNotEmpty()) {
-                        LazyColumn(modifier = Modifier.weight(1f)) {
+                        if (catalogos.isNotEmpty()) {
                             items(catalogos) { catalogo ->
                                 Card(
                                     modifier = Modifier
@@ -300,7 +375,7 @@ fun CatalogoFormScreen(
                                 )
                                 {
                                     Text(
-                                        text = "${catalogo.nombre} - $${catalogo.precio}", // Muestra el precio guardado
+                                        text = "${catalogo.nombre} - $${catalogo.precio}",
                                         style = MaterialTheme.typography.bodyLarge
                                     )
 
@@ -310,32 +385,34 @@ fun CatalogoFormScreen(
                                     )
                                 }
                             }
+                        } else {
+                            item {
+                                Text(
+                                    "No hay productos agregados",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
 
-                    } else {
-                        Text(
-                            "No hay productos agregados",
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+
                     }
-                } //Fin Contenido
 
-                // footer
-                Text(
-                    text = "@ 2025 Pasteleria Mil Sabores",
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFCEB487))
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center
-                )
+                    Text(
+                        text = "@ 2025 Pasteleria Mil Sabores",
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFCEB487))
+                            .padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
 
-            } // fin inner
-        }//fin
+                }
+            }
+        }
     }
 }
 

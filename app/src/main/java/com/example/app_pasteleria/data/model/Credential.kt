@@ -6,7 +6,6 @@ data class Credential(val username : String ,val password :String){
         val Admin = Credential(username="admin",password= "123")
         val usuarioDuoc = Credential(username="usuario@duocuc.cl", password= "duoc123")
         val Mayor50 = Credential(username="mayor50@mayor.cl", password= "mayor123") // aun no se implementa descuento
-
         val usuarios = listOf(Admin, usuarioDuoc, Mayor50)
     }//fin companion
 
