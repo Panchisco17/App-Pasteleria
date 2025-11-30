@@ -3,16 +3,37 @@ package com.example.app_pasteleria.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_pasteleria.data.model.Catalogo
+import com.example.app_pasteleria.data.repository.CatalogoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class CatalogoViewModel : ViewModel(){
+class CatalogoViewModel (private val repository: CatalogoRepository) : ViewModel(){
 
     // Tu lista de productos que ya tenías definida
     private val _pasteles = MutableStateFlow<List<Catalogo>>(emptyList())
     val pasteles: StateFlow<List<Catalogo>> = _pasteles.asStateFlow()
+
+    init{
+
+        viewModelScope.launch {
+            repository.obtenerCatalogo().collect{
+                _pasteles.value = it
+            }
+        }
+        cargarApi()
+    }
+
+    private fun cargarApi(){
+        viewModelScope.launch {
+            val listaApi = repository.obtenerPasteles()
+            _pasteles.value = listaApi
+        }
+    }
+
+
+
 
     fun guardarPastel(catalogo: Catalogo){
         viewModelScope.launch {
@@ -35,4 +56,10 @@ class CatalogoViewModel : ViewModel(){
         }
         return precioOriginal
     }
+
+
+
+
+
+
 } // fin class
