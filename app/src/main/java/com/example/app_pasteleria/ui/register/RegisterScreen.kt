@@ -1,41 +1,12 @@
 package com.example.app_pasteleria.ui.register
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn // Importante
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,20 +21,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.delay // Necesitas este import para la solución
-import kotlinx.coroutines.launch // Necesitas este import para la solución
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    vm: RegisterViewModel= viewModel()
-
-){
+    vm: RegisterViewModel = viewModel()
+) {
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
     var aceptarTerminos by remember { mutableStateOf(false) }
@@ -78,256 +46,257 @@ fun RegisterScreen(
     }
 
     val ColorScheme = darkColorScheme(
-        primary= Color(0xFF623608),
+        primary = Color(0xFF623608),
         secondary = Color(0xFF7C460D),
         onSurface = Color(0xFFB9863C),
         surface = Color(0xFFEAD3AC),
         background = Color(0xFFEAD3AC),
         onPrimary = Color.White,
+    )
 
-        )
-
-    MaterialTheme(
-        colorScheme = ColorScheme
-    ){
-        Scaffold (
-
+    MaterialTheme(colorScheme = ColorScheme) {
+        Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                TopAppBar(title = {Text("Pasteleria Mil Sabores",
-                    color =MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )})
+                TopAppBar(title = {
+                    Text(
+                        "Pasteleria Mil Sabores",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                })
             },
             snackbarHost = { SnackbarHost(snackbarHostState) }
-        )
-        { innerPadding ->
+        ) { innerPadding ->
 
-            Column (
+            // CAMBIO: LazyColumn para que todo el formulario sea desplazable
+            LazyColumn(
                 modifier = Modifier
-                    .padding( innerPadding)
+                    .padding(innerPadding)
                     .fillMaxSize()
                     .padding(16.dp, vertical = 12.dp)
                     .background(MaterialTheme.colorScheme.background),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                Text(text="Registro de usuarios",
-                    style= MaterialTheme.typography.headlineMedium,
-                    color=MaterialTheme.colorScheme.primary,
-                    fontFamily = FontFamily.Cursive,
-                    fontSize = 35.sp
-
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Ingrese su Nombre",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.nombre,
-                    onValueChange = vm::onNombreChange,
-                    label ={Text("Nombre...", color = MaterialTheme.colorScheme.onSurface)},
-                    singleLine = true ,
-                    modifier = Modifier.fillMaxWidth(0.95f),
-
-                    )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Ingrese su Apellido",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.apellido,
-                    onValueChange = vm::onApellidoChange,
-                    label ={Text("Apelliso...", color = MaterialTheme.colorScheme.onSurface)},
-                    singleLine = true ,
-                    modifier = Modifier.fillMaxWidth(0.95f),
-
-                    )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Fecha de Nacimiento",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.fechaNacimiento,
-                    onValueChange = {  },
-                    readOnly = true,
-                    label ={Text("dd-MM-yyyy", color = MaterialTheme.colorScheme.onSurface)},
-                    singleLine = true ,
-                    modifier = Modifier.fillMaxWidth(0.95f),
-                    trailingIcon = {
-                        IconButton(onClick = { showDatePickerDialog = true }) {
-                            Icon(Icons.Filled.DateRange, contentDescription = "Seleccionar Fecha")
-                        }
-                    }
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Ingrese su correo electrónico",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.email,
-                    onValueChange = vm::onEmailChange,
-                    label ={Text("example@duocuc.cl", color = MaterialTheme.colorScheme.onSurface)},
-                    singleLine = true ,
-                    modifier = Modifier.fillMaxWidth(0.95f),
-
-                    )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Ingrese su contraseña",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.password,
-                    onValueChange = vm::onPasswordChange,
-                    label ={Text("Contraseña", color = MaterialTheme.colorScheme.onSurface)},
-                    singleLine = true ,
-                    visualTransformation = if (showPass) VisualTransformation.None else
-                        PasswordVisualTransformation(),
-
-                    trailingIcon = {
-                        TextButton(onClick = {showPass =!showPass})
-                        {
-                            Text(if (showPass)"Ocultar" else "Ver")
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(0.95f)
-                )
-
-                if (state.error != null){
-                    Spacer (Modifier.height(8.dp))
+            ) {
+                item {
                     Text(
-                        text = state.error?:"",
-                        color = Color.Red,
-                        fontWeight = FontWeight.Bold
+                        text = "Registro de usuarios",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = FontFamily.Cursive,
+                        fontSize = 35.sp
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(0.95f)
-                        .padding(top = 8.dp, bottom = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Checkbox(
-                        checked = aceptarTerminos,
-                        onCheckedChange = { isChecked -> aceptarTerminos = isChecked },
+                item { Spacer(modifier = Modifier.height(16.dp)) }
 
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        Text(
+                            "Ingrese su Nombre",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
                         )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Acepto los términos y condiciones",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.secondary
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = state.nombre,
+                        onValueChange = vm::onNombreChange,
+                        label = { Text("Nombre...", color = MaterialTheme.colorScheme.onSurface) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(0.95f),
                     )
                 }
 
-                Button(
-                    onClick = {
-                        vm.submit {
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        Text(
+                            "Ingrese su Apellido",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = state.apellido,
+                        onValueChange = vm::onApellidoChange,
+                        label = { Text("Apellido...", color = MaterialTheme.colorScheme.onSurface) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(0.95f),
+                    )
+                }
+
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        Text(
+                            "Fecha de Nacimiento",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = state.fechaNacimiento,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("dd-MM-yyyy", color = MaterialTheme.colorScheme.onSurface) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(0.95f),
+                        trailingIcon = {
+                            IconButton(onClick = { showDatePickerDialog = true }) {
+                                Icon(Icons.Filled.DateRange, contentDescription = "Seleccionar Fecha")
+                            }
                         }
-                    },
-                    enabled = !state.isLoading && aceptarTerminos,
-                    modifier = Modifier.fillMaxWidth(0.6f)
-                ) {
-                    Text(if (state.isLoading) "Validando" else "Registrarse")
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-
-                ){
-                    Text("¿Ya tienes cuenta?",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.secondary.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
                     )
                 }
 
-                Button(
-                    onClick = {
-                        navController.navigate("login")
-                    },
-                    enabled = !state.isLoading,
-                    modifier = Modifier.fillMaxWidth(0.6f)
-                ) {
-                    Text("Iniciar Sesión")
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        Text(
+                            "Ingrese su correo electrónico",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = vm::onEmailChange,
+                        label = { Text("example@duocuc.cl", color = MaterialTheme.colorScheme.onSurface) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(0.95f),
+                    )
+                }
+
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        Text(
+                            "Ingrese su contraseña",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = vm::onPasswordChange,
+                        label = { Text("Contraseña", color = MaterialTheme.colorScheme.onSurface) },
+                        singleLine = true,
+                        visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            TextButton(onClick = { showPass = !showPass }) {
+                                Text(if (showPass) "Ocultar" else "Ver")
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(0.95f)
+                    )
+                }
+
+                if (state.error != null) {
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = state.error ?: "",
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(0.95f)
+                            .padding(top = 8.dp, bottom = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Checkbox(
+                            checked = aceptarTerminos,
+                            onCheckedChange = { isChecked -> aceptarTerminos = isChecked },
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Acepto los términos y condiciones",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+
+                item {
+                    // AQUÍ ESTABA EL ERROR: Agregamos la navegación en onSuccess
+                    Button(
+                        onClick = {
+                            vm.submit {
+                                navController.navigate("login") {
+                                    popUpTo("register") { inclusive = true }
+                                }
+                            }
+                        },
+                        enabled = !state.isLoading && aceptarTerminos,
+                        modifier = Modifier.fillMaxWidth(0.6f)
+                    ) {
+                        Text(if (state.isLoading) "Validando" else "Registrarse")
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "¿Ya tienes cuenta?",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { navController.navigate("login") },
+                        enabled = !state.isLoading,
+                        modifier = Modifier.fillMaxWidth(0.6f)
+                    ) {
+                        Text("Iniciar Sesión")
+                    }
                 }
             }
 
+            // ... (Lógica de DatePicker y Mensaje Cumpleaños igual que antes) ...
             if (showDatePickerDialog) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePickerDialog = false },
@@ -341,18 +310,12 @@ fun RegisterScreen(
                                 showDatePickerDialog = false
                             },
                             enabled = estadoSelectorFecha.selectedDateMillis != null
-                        ) {
-                            Text("Aceptar")
-                        }
+                        ) { Text("Aceptar") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showDatePickerDialog = false }) {
-                            Text("Cancelar")
-                        }
+                        TextButton(onClick = { showDatePickerDialog = false }) { Text("Cancelar") }
                     }
-                ) {
-                    DatePicker(state = estadoSelectorFecha)
-                }
+                ) { DatePicker(state = estadoSelectorFecha) }
             }
 
             if (state.mensajeCumple) {
@@ -362,30 +325,14 @@ fun RegisterScreen(
                         actionLabel = "Aceptar",
                         duration = SnackbarDuration.Long
                     )
-
                     delay(1000L)
-
-                    navController.navigate(route = "login") {
+                    navController.navigate("login") {
                         popUpTo("register") { inclusive = true }
                         launchSingleTop = true
                     }
-
                     vm.ocultarMensajeCumple()
                 }
             }
-
-        } // Fin inner
-
-
-    } // fin Aplicar Material
-}// Fin RegisterScreen
-
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterScreenPreview(){
-    val navController = rememberNavController()
-    val vm = RegisterViewModel()
-
-    RegisterScreen(navController = navController, vm = vm)
-}// Fin RegisterScreen
+        }
+    }
+}

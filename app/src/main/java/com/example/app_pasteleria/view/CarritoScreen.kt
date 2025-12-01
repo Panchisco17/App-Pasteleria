@@ -54,34 +54,30 @@ fun CarritoScreen(
         },
         containerColor = Color(0xFFEAD3AC)
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
+
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+
             if (productosEnCarrito.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("El carrito está vacío 🛒", fontSize = 20.sp, color = Color(0xFF623608))
                 }
             } else {
-                LazyColumn(modifier = Modifier.weight(1f)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
                     items(productosEnCarrito) { producto ->
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                // Columna de Info (Nombre y Precio)
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = producto.nombre,
@@ -89,16 +85,11 @@ fun CarritoScreen(
                                         color = Color(0xFF623608),
                                         fontSize = 16.sp
                                     )
-                                    Text(
-                                        text = "$${producto.precio}",
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.DarkGray
-                                    )
+                                    Text(text = "$${producto.precio}", fontWeight = FontWeight.Bold, color = Color.DarkGray)
+
                                 }
 
-                                // Controles CRUD (Menos, Cantidad, Mas, Borrar)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // Botón Menos
                                     IconButton(
                                         onClick = { viewModel.actualizarCantidad(producto, false) },
                                         modifier = Modifier.size(30.dp).background(Color(0xFFE0E0E0), CircleShape)
@@ -112,7 +103,6 @@ fun CarritoScreen(
                                         fontWeight = FontWeight.Bold
                                     )
 
-                                    // Botón Mas
                                     IconButton(
                                         onClick = { viewModel.actualizarCantidad(producto, true) },
                                         modifier = Modifier.size(30.dp).background(Color(0xFFE0E0E0), CircleShape)
@@ -122,60 +112,55 @@ fun CarritoScreen(
 
                                     Spacer(modifier = Modifier.width(12.dp))
 
-                                    // Botón Eliminar (Basurero)
-                                    IconButton(
-                                        onClick = { viewModel.eliminarProducto(producto) }
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Eliminar",
-                                            tint = Color.Red
-                                        )
+                                    IconButton(onClick = { viewModel.eliminarProducto(producto) }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
 
-                // ... (El resto del resumen y botón finalizar sigue igual) ...
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFCEB487))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total a Pagar:", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                        Text("$${total.toInt()}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        viewModel.finalizarCompra {
-                            navController.popBackStack()
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFCEB487))
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Total a Pagar:", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                Text("$${total.toInt()}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                            }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C460D)),
-                    enabled = !enviando
-                ) {
-                    if (enviando) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Icon(Icons.Default.ShoppingCartCheckout, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Finalizar Compra")
                     }
+
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                    item {
+                        Button(
+                            onClick = {
+                                viewModel.finalizarCompra {
+                                    navController.popBackStack()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C460D)),
+                            enabled = !enviando
+                        ) {
+                            if (enviando) {
+                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                            } else {
+                                Icon(Icons.Default.ShoppingCartCheckout, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Finalizar Compra")
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
         }

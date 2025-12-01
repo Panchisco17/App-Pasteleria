@@ -1,10 +1,12 @@
 package com.example.app_pasteleria.ui.register
 
+import android.app.Application
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.app_pasteleria.data.database.CatalogoDatabase
+import com.example.app_pasteleria.data.model.Usuario
 import com.example.app_pasteleria.data.repository.AuthRepository
 import com.example.app_pasteleria.ui.register.data.RegisterUiState
 import kotlinx.coroutines.delay
@@ -13,46 +15,35 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-class RegisterViewModel(
-    private val repo: AuthRepository = AuthRepository()
-) : ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
-    var uiState by mutableStateOf(RegisterUiState())
+    private val repo: AuthRepository
 
-    fun onNombreChange(value: String) {
-        uiState = uiState.copy(nombre = value, error = null)
+    init {
+        val db = CatalogoDatabase.getDatabase(application)
+        repo = AuthRepository(db.UsuarioDao())
     }
 
-    fun onApellidoChange(value: String) {
-        uiState = uiState.copy(apellido = value, error = null)
-    }
+    var uiState by androidx.compose.runtime.mutableStateOf(RegisterUiState())
+        private set
 
-    fun onEmailChange(value: String) {
-        uiState = uiState.copy(email = value, error = null)
-    }
+    fun onNombreChange(value: String) { uiState = uiState.copy(nombre = value, error = null) }
+    fun onApellidoChange(value: String) { uiState = uiState.copy(apellido = value, error = null) }
+    fun onEmailChange(value: String) { uiState = uiState.copy(email = value, error = null) }
+    fun onPasswordChange(value: String) { uiState = uiState.copy(password = value, error = null) }
+    fun onFechaNacimientoChange(value: String) { uiState = uiState.copy(fechaNacimiento = value, error = null) }
 
-    fun onPasswordChange(value: String) {
-        uiState = uiState.copy(password = value, error = null)
-    }
-
-    fun onFechaNacimientoChange(value: String) {
-        uiState = uiState.copy(fechaNacimiento = value, error = null)
-    }
+    fun ocultarMensajeCumple() { uiState = uiState.copy(mensajeCumple = false) }
 
     private fun hoyCumple(fechaNacimiento: String): Boolean {
         val formateador = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         return try {
             val fechaNacimientoUsuario = LocalDate.parse(fechaNacimiento, formateador)
             val fechaActual = LocalDate.now()
-
             fechaNacimientoUsuario.dayOfMonth == fechaActual.dayOfMonth && fechaNacimientoUsuario.month == fechaActual.month
         } catch (e: DateTimeParseException) {
             false
         }
-    }
-
-    fun ocultarMensajeCumple() {
-        uiState = uiState.copy(mensajeCumple = false)
     }
 
     fun submit(onSuccess: () -> Unit) {
@@ -60,10 +51,9 @@ class RegisterViewModel(
             uiState = uiState.copy(isLoading = true, error = null, mensajeCumple = false)
 
             if (uiState.nombre.isBlank() || uiState.apellido.isBlank() || uiState.email.isBlank() || uiState.password.isBlank() || uiState.fechaNacimiento.isBlank()) {
-                uiState = uiState.copy(isLoading = false, error = "Complete todos los campos obligatorios.")
+                uiState = uiState.copy(isLoading = false, error = "Complete todos los campos.")
                 return@launch
             }
-
             if (uiState.password.length < 3) {
                 uiState = uiState.copy(isLoading = false, error = "La contraseña debe tener al menos 3 caracteres.")
                 return@launch
@@ -72,23 +62,23 @@ class RegisterViewModel(
             val isDuocEmail = uiState.email.trim().endsWith("@duocuc.cl", ignoreCase = true)
             val isBirthday = hoyCumple(uiState.fechaNacimiento)
 
-            val descuentoDuoc = isDuocEmail
-            val descuento50Anios = false
-            val descuentoFelices50 = false
-
+            val nuevoUsuario = Usuario(
+                nombre = uiState.nombre,
+                apellido = uiState.apellido,
+                email = uiState.email.trim(),
+                password = uiState.password,
+                fechaNacimiento = uiState.fechaNacimiento
+            )
 
             try {
-                val username = uiState.email.trim()
-                val registrationOk = repo.register(username, uiState.password)
+                val registrationOk = repo.register(nuevoUsuario)
 
-                delay(1000)
+                delay(1000) // Simular espera visual
 
                 if (registrationOk) {
                     uiState = uiState.copy(
                         isLoading = false,
-                        descuento50Anios = descuento50Anios,
-                        descuentoFelices50 = descuentoFelices50,
-                        descuentoDuoc = descuentoDuoc,
+                        descuentoDuoc = isDuocEmail,
                         mensajeCumple = isDuocEmail && isBirthday,
                         error = null
                     )
@@ -98,7 +88,7 @@ class RegisterViewModel(
                 }
 
             } catch (e: Exception) {
-                uiState = uiState.copy(isLoading = false, error = "Fallo el registro: ${e.message}")
+                uiState = uiState.copy(isLoading = false, error = "Fallo: ${e.message}")
             }
         }
     }

@@ -1,20 +1,32 @@
 package com.example.app_pasteleria.data.repository
 
+import com.example.app_pasteleria.data.dao.UsuarioDao
 import com.example.app_pasteleria.data.model.Credential
+import com.example.app_pasteleria.data.model.Usuario
 
-private val usuarios = Credential.usuarios.toMutableList()
-class AuthRepository {
-    fun login (username:String,password:String): Boolean {
-        return usuarios.any { it.username == username && it.password == password }
+class AuthRepository(private val usuarioDao: UsuarioDao? = null) {
+
+    suspend fun login(username: String, password: String): Boolean {
+        val esUsuarioEstatico = Credential.usuarios.any { it.username == username && it.password == password }
+        if (esUsuarioEstatico) return true
+
+        if (usuarioDao != null) {
+            val usuarioEncontrado = usuarioDao.login(username, password)
+            return usuarioEncontrado != null
+        }
+
+        return false
     }
 
-    fun register(username: String, password: String): Boolean {
-        if (usuarios.any { it.username == username }) {
-            return false // si el Usuario ya existe
+    suspend fun register(usuario: Usuario): Boolean {
+        if (usuarioDao == null) return false
+
+        val existe = usuarioDao.buscarPorEmail(usuario.email)
+        if (existe != null) {
+            return false
         }
-        val newUser = Credential(username, password)
-        usuarios.add(newUser)
+
+        usuarioDao.insertarUsuario(usuario)
         return true
     }
-
-}//fin del class
+}

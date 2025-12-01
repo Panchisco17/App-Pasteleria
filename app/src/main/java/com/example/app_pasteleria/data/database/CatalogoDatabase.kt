@@ -1,21 +1,22 @@
 package com.example.app_pasteleria.data.database
 
-
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.app_pasteleria.data.dao.CatalogoDao
+import com.example.app_pasteleria.data.dao.UsuarioDao
 import com.example.app_pasteleria.data.model.Catalogo
+import com.example.app_pasteleria.data.model.Usuario
 
 @Database(
-    entities = [Catalogo::class],
-    version = 1,
-    exportSchema = false // evite warning
+    entities = [Catalogo::class, Usuario::class],
+    version = 2,
+    exportSchema = false
 )
-
 abstract class CatalogoDatabase: RoomDatabase(){
     abstract fun CatalogoDao(): CatalogoDao
+    abstract fun UsuarioDao(): UsuarioDao
 
     companion object{
         private var INSTANCE: CatalogoDatabase? = null
@@ -26,10 +27,12 @@ abstract class CatalogoDatabase: RoomDatabase(){
                     context.applicationContext,
                     CatalogoDatabase::class.java,
                     "producto_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
-            } // fin return
-        } // fin getDatabase
-    } // fin companion
-} // fin abstract
+            }
+        }
+    }
+}

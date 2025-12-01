@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack // Flecha atrás
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.ShoppingCart // <--- NUEVO ICONO CARRITO
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -71,7 +71,6 @@ fun CatalogoFormScreen(
     var descuentoInput by remember { mutableStateOf(TextFieldValue("")) }
     var aplicarDescuento by remember { mutableStateOf(false) }
 
-    // Variables QR
     var showQrScanner by remember { mutableStateOf(false) }
     val qrViewModel: QrViewModel = viewModel()
     val qrResult by qrViewModel.qrResult.observeAsState()
@@ -99,7 +98,6 @@ fun CatalogoFormScreen(
         }
     }
 
-    // ViewModel del Carrito
     val viewModel: CatalogoViewModel = viewModel()
     val catalogos: List<Catalogo> by viewModel.pasteles.collectAsState()
 
@@ -142,7 +140,6 @@ fun CatalogoFormScreen(
                             )
                         )
                     },
-                    // Botón de retroceso (Izquierda)
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
@@ -152,7 +149,6 @@ fun CatalogoFormScreen(
                             )
                         }
                     },
-                    // --- NUEVO: Botón del Carrito (Derecha) ---
                     actions = {
                         IconButton(onClick = { navController.navigate("CarritoScreen") }) {
                             Icon(
@@ -243,14 +239,15 @@ fun CatalogoFormScreen(
 
                         item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                        item {
+                        item { //cantidad
                             OutlinedTextField(
                                 value = cantidad,
                                 onValueChange = { cantidad = it },
                                 label = { Text("Cantidad", color = MaterialTheme.colorScheme.onSurface) },
                                 modifier = Modifier.fillMaxWidth()
                             )
-                        }
+                        } // fin item cantidad
+
 
                         item {
                             Row(
@@ -323,8 +320,11 @@ fun CatalogoFormScreen(
                                         nombre = nombre,
                                         precio = precioTotalAGuardar,
                                         cantidad = cantidad.text
+
                                     )
                                     viewModel.guardarPastel(catalogo)
+
+
                                 },
                                 enabled = isButtonEnabled
                             )
@@ -355,11 +355,13 @@ fun CatalogoFormScreen(
                                         Text(
                                             text = "${catalogo.nombre} - $${catalogo.precio}",
                                             style = MaterialTheme.typography.bodyLarge
-                                        )
+                                        ) // fin text nombre y precio
                                         Text(
                                             text = "Cantidad: ${catalogo.cantidad}",
                                             style = MaterialTheme.typography.bodyMedium
-                                        )
+                                        ) // fin text cantidad
+
+
                                     }
                                 }
                             }
