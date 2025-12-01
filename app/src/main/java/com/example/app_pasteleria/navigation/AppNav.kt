@@ -11,7 +11,7 @@ import com.example.app_pasteleria.ui.login.LoginScreen
 import com.example.app_pasteleria.ui.register.RegisterScreen
 import com.example.app_pasteleria.view.DrawerMenu
 import com.example.app_pasteleria.view.CatalogoFormScreen
-import com.example.app_pasteleria.view.CarritoScreen // <--- Importante: Importar la nueva pantalla
+import com.example.app_pasteleria.view.CarritoScreen
 
 @Composable
 fun AppNav(){
@@ -30,7 +30,7 @@ fun AppNav(){
             RegisterScreen(navController = navController)
         }
 
-        // 3. Menú Lateral (Catálogo)
+        // 3. Catálogo
         composable(
             route="DrawerMenu/{username}",
             arguments = listOf(
@@ -41,7 +41,7 @@ fun AppNav(){
             DrawerMenu(username= username, navController= navController)
         }
 
-        // 4. Formulario de Compra (Detalle del Pastel)
+        // 4. Formulario de Compra
         composable(
             route="CatalogoFormScreen/{nombre}/{precio}",
             arguments = listOf(
@@ -55,7 +55,7 @@ fun AppNav(){
             CatalogoFormScreen(navController = navController, nombre= nombre, precio= precio)
         }
 
-        // 5. Pantalla del Carrito de Compras (NUEVA RUTA)
+        // 5. carrito de Compras
         composable("CarritoScreen") {
             CarritoScreen(navController = navController)
         }

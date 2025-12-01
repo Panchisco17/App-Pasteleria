@@ -23,12 +23,9 @@ class LoginScreenTest {
             val navController = rememberNavController()
             LoginScreen(navController = navController)
         }
-
         composeTestRule.onNodeWithText("Inicio de sesión").assertIsDisplayed()
-
         composeTestRule.onNodeWithText("Correo Electrónico").assertIsDisplayed()
         composeTestRule.onNodeWithText("Contraseña").assertIsDisplayed()
-
         composeTestRule.onNodeWithText("Iniciar Sesion").assertIsDisplayed()
     }
 
@@ -41,10 +38,8 @@ class LoginScreenTest {
 
         composeTestRule.onNodeWithText("Correo Electrónico")
             .performTextInput("prueba@duocuc.cl")
-
         composeTestRule.onNodeWithText("Contraseña")
             .performTextInput("123456")
-
         composeTestRule.onNodeWithText("Iniciar Sesion").performClick()
     }
 }

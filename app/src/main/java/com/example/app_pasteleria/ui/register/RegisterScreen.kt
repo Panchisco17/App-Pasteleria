@@ -2,7 +2,7 @@ package com.example.app_pasteleria.ui.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn // Importante
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -15,12 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,7 +72,6 @@ fun RegisterScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { innerPadding ->
 
-            // CAMBIO: LazyColumn para que todo el formulario sea desplazable
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -251,7 +248,6 @@ fun RegisterScreen(
                 }
 
                 item {
-                    // AQUÍ ESTABA EL ERROR: Agregamos la navegación en onSuccess
                     Button(
                         onClick = {
                             vm.submit {
@@ -296,7 +292,6 @@ fun RegisterScreen(
                 }
             }
 
-            // ... (Lógica de DatePicker y Mensaje Cumpleaños igual que antes) ...
             if (showDatePickerDialog) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePickerDialog = false },

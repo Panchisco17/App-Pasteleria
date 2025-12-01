@@ -1,12 +1,18 @@
 package com.example.app_pasteleria.ui.login
 
-import com.example.app_pasteleria.data.repository.AuthRepository
+import android.app.Application
+import com.example.app_pasteleria.data.dao.UsuarioDao
+import com.example.app_pasteleria.data.database.CatalogoDatabase
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,31 +27,31 @@ class LoginViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        // Mockeamos el objeto compañero (Companion Object) de la base de datos
+        mockkObject(CatalogoDatabase)
     }
 
     @AfterEach
     fun tearDown() {
+        unmockkObject(CatalogoDatabase)
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `si el login falla debe actualizar el estado con error`() {
-        // 1. Mockear el repositorio
-        val mockRepo = mockk<AuthRepository>()
-        // Definimos que cualquier intento de login retorne falso (fallido)
-        every { mockRepo.login(any(), any()) } returns false
+    fun `si el login falla debe actualizar el estado con error`() = runTest {
+        val mockApp = mockk<Application>(relaxed = true)
+        val mockDb = mockk<CatalogoDatabase>()
+        val mockDao = mockk<UsuarioDao>()
 
-        // 2. Crear el ViewModel inyectando el mock
-        val viewModel = LoginViewModel(repo = mockRepo)
+        every { CatalogoDatabase.getDatabase(any()) } returns mockDb
+        every { mockDb.UsuarioDao() } returns mockDao
+        coEvery { mockDao.login(any(), any()) } returns null
 
-        // 3. Simular entrada de datos del usuario
+        val viewModel = LoginViewModel(mockApp)
+
         viewModel.onUsernameChange("usuario@error.cl")
         viewModel.onPasswordChange("123456")
-
-        // 4. Ejecutar el submit
-        viewModel.submit { /* No nos importa el éxito aquí */ }
-
-        // 5. Verificar que el estado tenga el mensaje de error esperado
+        viewModel.submit { }
         assertEquals("Credenciales Invalidas", viewModel.uiState.error)
     }
 }

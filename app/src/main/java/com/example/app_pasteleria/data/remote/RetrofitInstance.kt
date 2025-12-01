@@ -1,9 +1,7 @@
 package com.example.app_pasteleria.data.remote
 
-import com.example.app_pasteleria.data.remote.ApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-// Singleton que contiene la configuración de Retrofit
 object RetrofitInstance {
 
     private const val BASE_URL = "https://api.npoint.io/"

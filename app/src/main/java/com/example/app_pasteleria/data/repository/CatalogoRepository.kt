@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 class CatalogoRepository (private val catalogoDao: CatalogoDao) {
 
-    // Obtener lista del menú (API)
     suspend fun obtenerPasteles(): List<Postre> {
         val respuestaApi = RetrofitInstance.api.obtenerPostre()
         return respuestaApi.map {
@@ -20,7 +19,6 @@ class CatalogoRepository (private val catalogoDao: CatalogoDao) {
         }
     }
 
-    // Funciones del Carrito (CRUD Local)
     suspend fun insertarCatalogo(catalogo: Catalogo) {
         catalogoDao.insertarCatalogo(catalogo)
     }
@@ -37,12 +35,10 @@ class CatalogoRepository (private val catalogoDao: CatalogoDao) {
         catalogoDao.eliminarCatalogo(catalogo)
     }
 
-    // --- FUNCIÓN QUE TE FALTABA ---
     suspend fun limpiarCarrito() {
         catalogoDao.borrarTodo()
     }
 
-    // Enviar pedido a Internet (API)
     suspend fun enviarPedidoInternet(listaProductos: List<Catalogo>): Boolean {
         return try {
             RetrofitInstance.api.enviarPedido(listaProductos)

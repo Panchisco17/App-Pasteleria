@@ -17,7 +17,6 @@ class CatalogoViewModel(application: Application) : AndroidViewModel(application
 
     private val repository: CatalogoRepository
 
-    // Estado del carrito (Base de datos local)
     private val _pasteles = MutableStateFlow<List<Catalogo>>(emptyList())
     val pasteles: StateFlow<List<Catalogo>> = _pasteles.asStateFlow()
 
@@ -36,35 +35,26 @@ class CatalogoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // --- CORRECCIÓN AQUÍ ---
     private fun sincronizarNube() {
         viewModelScope.launch {
             delay(500)
             val listaActualizada = _pasteles.value
 
-            // ELIMINAMOS EL "if (isNotEmpty)"
-            // Ahora enviamos SIEMPRE, incluso si está vacía (para borrar el JSON remoto)
             repository.enviarPedidoInternet(listaActualizada)
         }
     }
-
-    // 1. Crear (Agregar)
     fun guardarPastel(catalogo: Catalogo) {
         viewModelScope.launch {
             repository.insertarCatalogo(catalogo)
             sincronizarNube()
         }
     }
-
-    // 2. Eliminar
     fun eliminarProducto(producto: Catalogo) {
         viewModelScope.launch {
             repository.eliminarProducto(producto)
-            sincronizarNube() // Al borrar el último, enviará []
+            sincronizarNube()
         }
     }
-
-    // 3. Actualizar Cantidad
     fun actualizarCantidad(producto: Catalogo, sumar: Boolean) {
         viewModelScope.launch {
             val cantidadActual = producto.cantidad.toIntOrNull() ?: 1
@@ -85,7 +75,6 @@ class CatalogoViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-
     fun calcularPrecioFinal(precioOriginal: String, codigoDescuento: String?): String {
         val precioBase = precioOriginal.toDoubleOrNull() ?: 0.0
         if (codigoDescuento.equals("FELICES50", ignoreCase = true)) {
@@ -95,7 +84,6 @@ class CatalogoViewModel(application: Application) : AndroidViewModel(application
         }
         return precioOriginal
     }
-
     fun finalizarCompra(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _enviando.value = true
@@ -105,8 +93,6 @@ class CatalogoViewModel(application: Application) : AndroidViewModel(application
                 val exito = repository.enviarPedidoInternet(listaActual)
                 if (exito) {
                     repository.limpiarCarrito()
-                    // Aquí también sincronizamos para dejar la nube vacía al final
-                    // ya que repository.limpiarCarrito() vacía la local
                     sincronizarNube()
 
                     Toast.makeText(getApplication(), "¡Pedido enviado con éxito!", Toast.LENGTH_LONG).show()

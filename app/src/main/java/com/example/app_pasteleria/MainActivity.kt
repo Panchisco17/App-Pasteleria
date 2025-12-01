@@ -9,10 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.example.app_pasteleria.ui.theme.AppPasteleriaTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_pasteleria.navigation.AppNav
-import com.example.app_pasteleria.ui.theme.ApiRestTheme
-import com.example.app_pasteleria.viewmodel.PostreViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
