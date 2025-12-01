@@ -7,15 +7,12 @@ import com.example.app_pasteleria.data.model.Usuario
 
 @Dao
 interface UsuarioDao {
-    // Para el Registro
     @Insert
     suspend fun insertarUsuario(usuario: Usuario)
 
-    // Para validar si el correo ya existe antes de registrar
     @Query("SELECT * FROM usuarios WHERE email = :email LIMIT 1")
     suspend fun buscarPorEmail(email: String): Usuario?
 
-    // Para el Login (Coincidencia de email y password)
     @Query("SELECT * FROM usuarios WHERE email = :email AND password = :password LIMIT 1")
     suspend fun login(email: String, password: String): Usuario?
 }

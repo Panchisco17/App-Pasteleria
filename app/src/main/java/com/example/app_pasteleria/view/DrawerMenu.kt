@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp // Icono Salir
 import androidx.compose.material.icons.filled.BakeryDining
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Cookie
@@ -42,7 +43,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_pasteleria.viewmodel.PostreViewModel
 
-// Función auxiliar para elegir el ÍCONO VECTORIAL según el nombre
 private fun getProductoIcon(nombre: String): ImageVector {
     return when {
         nombre.contains("Galleta", ignoreCase = true) -> Icons.Default.Cookie
@@ -65,14 +65,12 @@ fun DrawerMenu(
     val itemIconSize = 30.dp
     val itemTextSize = 17.sp
 
-    // Colores para la lista de productos
     val itemColors = NavigationDrawerItemDefaults.colors(
         unselectedTextColor = itemTextColor,
         unselectedIconColor = itemTextColor
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Encabezado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,17 +88,15 @@ fun DrawerMenu(
             )
         }
 
-        // Lista
         LazyColumn(modifier = Modifier
-            .weight(1f)
+            .weight(1f) // Esto hace que la lista ocupe todo el espacio disponible
             .background(Color(0xFFEAD3AC))
         ){
-            // --- 1. BOTÓN VER CARRITO (Estilo Botón) ---
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp), // Margen alrededor del botón
+                        .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
@@ -109,7 +105,7 @@ fun DrawerMenu(
                             .fillMaxWidth()
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF7C460D) // Color Café del tema
+                            containerColor = Color(0xFF7C460D)
                         ),
                         shape = MaterialTheme.shapes.medium
                     ) {
@@ -130,7 +126,6 @@ fun DrawerMenu(
                 Divider(color = separador, thickness = 2.dp)
             }
 
-            // --- 2. LISTA DE PRODUCTOS ---
             if (listaPastelesApi.isEmpty()) {
                 item {
                     Text(
@@ -177,7 +172,33 @@ fun DrawerMenu(
             }
         }
 
-        // Footer
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFEAD3AC))
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Button(
+                onClick = {
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true } // Borra todo el historial
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF623608) // Un café más oscuro para diferenciarlo
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = "Salir",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cerrar Sesión")
+            }
+        }
+
         Text(
             text = "@ 2025 Pasteleria Mil Sabores\nUsuario: $username",
             style = MaterialTheme.typography.bodySmall,

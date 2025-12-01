@@ -8,12 +8,11 @@ object RetrofitInstance {
 
     private const val BASE_URL = "https://api.npoint.io/"
 
-    // Se instancia el servicio de la API una sola vez
     val api: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL) // URL base de la API
-            .addConverterFactory(GsonConverterFactory.create()) // Conversor JSON
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java) // Implementa la interfaz ApiService
+            .create(ApiService::class.java)
     }
 }

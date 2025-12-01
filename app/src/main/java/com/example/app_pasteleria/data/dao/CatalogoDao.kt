@@ -16,7 +16,6 @@ interface CatalogoDao {
     @Query("SELECT * FROM catalogo")
     fun obtenerCatalogo(): Flow<List<Catalogo>>
 
-    // Esta es la función clave que te falta para que funcione limpiarCarrito
     @Query("DELETE FROM catalogo")
     suspend fun borrarTodo()
 
