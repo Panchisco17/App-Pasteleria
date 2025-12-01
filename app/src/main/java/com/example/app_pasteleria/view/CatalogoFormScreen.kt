@@ -1,40 +1,25 @@
 package com.example.app_pasteleria.view
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.ArrowBack // Flecha atrás
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.ShoppingCart // <--- NUEVO ICONO CARRITO
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -46,20 +31,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.app_pasteleria.data.model.Catalogo
-import com.example.app_pasteleria.viewmodel.CatalogoViewModel
 import com.example.app_pasteleria.R
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.platform.LocalContext
+import com.example.app_pasteleria.data.model.Catalogo
 import com.example.app_pasteleria.utils.CameraPermissionHelper
+import com.example.app_pasteleria.viewmodel.CatalogoViewModel
 import com.example.app_pasteleria.viewmodel.QrViewModel
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.Manifest
 
 @Composable
 private fun getProductoImagenId(nombre: String): Int {
@@ -80,23 +56,22 @@ private fun getProductoImagenId(nombre: String): Int {
         "Galletas veganas" -> R.drawable.galletas_veganas
         "Torta de Boda" -> R.drawable.torta_boda
         "Torta de cumpleaños" -> R.drawable.torta_cumple
-
         else -> R.drawable.logo
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun CatalogoFormScreen(
     navController: NavController,
-    nombre:String,
+    nombre: String,
     precio: String
 ) {
-
     var cantidad by remember { mutableStateOf(TextFieldValue("")) }
     var descuentoInput by remember { mutableStateOf(TextFieldValue("")) }
     var aplicarDescuento by remember { mutableStateOf(false) }
 
+    // Variables QR
     var showQrScanner by remember { mutableStateOf(false) }
     val qrViewModel: QrViewModel = viewModel()
     val qrResult by qrViewModel.qrResult.observeAsState()
@@ -124,8 +99,10 @@ fun CatalogoFormScreen(
         }
     }
 
+    // ViewModel del Carrito
     val viewModel: CatalogoViewModel = viewModel()
     val catalogos: List<Catalogo> by viewModel.pasteles.collectAsState()
+
     val imageId = getProductoImagenId(nombre)
     val topBarColor = Color(0xFF7C460D)
     val topBarContentColor = MaterialTheme.colorScheme.onPrimary
@@ -146,14 +123,10 @@ fun CatalogoFormScreen(
         background = Color(0xFFEAD3AC),
         onPrimary = Color.White,
         onSecondary = Color.Black
-
     )
-    MaterialTheme(
-        colorScheme = ColorScheme
-    ) {
 
+    MaterialTheme(colorScheme = ColorScheme) {
         Scaffold(
-
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -168,6 +141,26 @@ fun CatalogoFormScreen(
                                 fontFamily = FontFamily.Cursive
                             )
                         )
+                    },
+                    // Botón de retroceso (Izquierda)
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Volver",
+                                tint = topBarContentColor
+                            )
+                        }
+                    },
+                    // --- NUEVO: Botón del Carrito (Derecha) ---
+                    actions = {
+                        IconButton(onClick = { navController.navigate("CarritoScreen") }) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Ir al Carrito",
+                                tint = topBarContentColor
+                            )
+                        }
                     }
                 )
             },
@@ -202,9 +195,8 @@ fun CatalogoFormScreen(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+
                         item {
                             Image(
                                 painter = painterResource(id = imageId),
@@ -229,11 +221,7 @@ fun CatalogoFormScreen(
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = if (precio == precioFinalUnitarioString) {
-                                    Arrangement.Center
-                                } else {
-                                    Arrangement.Center
-                                }
+                                horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
                                     text = "Precio: $$precio",
@@ -259,12 +247,7 @@ fun CatalogoFormScreen(
                             OutlinedTextField(
                                 value = cantidad,
                                 onValueChange = { cantidad = it },
-                                label = {
-                                    Text(
-                                        "Cantidad",
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
+                                label = { Text("Cantidad", color = MaterialTheme.colorScheme.onSurface) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -299,12 +282,7 @@ fun CatalogoFormScreen(
                                 OutlinedTextField(
                                     value = descuentoInput,
                                     onValueChange = { descuentoInput = it },
-                                    label = {
-                                        Text(
-                                            "Código de descuento",
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    },
+                                    label = { Text("Código de descuento", color = MaterialTheme.colorScheme.onSurface) },
                                     trailingIcon = {
                                         IconButton(onClick = {
                                             if (hasCameraPermission) {
@@ -347,7 +325,6 @@ fun CatalogoFormScreen(
                                         cantidad = cantidad.text
                                     )
                                     viewModel.guardarPastel(catalogo)
-
                                 },
                                 enabled = isButtonEnabled
                             )
@@ -374,15 +351,16 @@ fun CatalogoFormScreen(
                                         .padding(4.dp)
                                 )
                                 {
-                                    Text(
-                                        text = "${catalogo.nombre} - $${catalogo.precio}",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-
-                                    Text(
-                                        text = "Cantidad: ${catalogo.cantidad}",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                                    Column(modifier = Modifier.padding(8.dp)) {
+                                        Text(
+                                            text = "${catalogo.nombre} - $${catalogo.precio}",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = "Cantidad: ${catalogo.cantidad}",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
                                 }
                             }
                         } else {
@@ -394,9 +372,7 @@ fun CatalogoFormScreen(
                                 )
                             }
                         }
-
                         item { Spacer(modifier = Modifier.height(16.dp)) }
-
                     }
 
                     Text(
@@ -409,7 +385,6 @@ fun CatalogoFormScreen(
                             .padding(16.dp),
                         textAlign = TextAlign.Center
                     )
-
                 }
             }
         }

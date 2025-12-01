@@ -1,20 +1,25 @@
 package com.example.app_pasteleria.view
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BakeryDining
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.Cookie
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,37 +32,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.app_pasteleria.R
 import com.example.app_pasteleria.viewmodel.PostreViewModel
 
-// Función auxiliar para las imágenes (copiada para que funcione aquí)
-@Composable
-private fun getProductoImagenId(nombre: String): Int {
-    return when (nombre) {
-        "Torta Cuadrada de Chocolate" -> R.drawable.torta_cuadrada_chocolate
-        "Torta Cuadrada de Frutas" -> R.drawable.torta_cuadrada_frutas
-        "Torta circular de manjar" -> R.drawable.torta_circular_manjar
-        "Torta circular de vainilla" -> R.drawable.torta_vainilla
-        "Tiramisú clásico" -> R.drawable.tiramisu
-        "Mousse de chocolate" -> R.drawable.mousse
-        "Torta de naranja sin azúcar" -> R.drawable.torta_naranja
-        "Cheesecake sin azúcar" -> R.drawable.cheesecake
-        "Empanada de mánzana" -> R.drawable.empanada_manzana
-        "Tarta Santiago" -> R.drawable.tarta_santiago
-        "Brownie sin glúten" -> R.drawable.brownie
-        "Pan sin glúten" -> R.drawable.pan
-        "Torta vegana de chocolate" -> R.drawable.torta_vegana
-        "Galletas veganas" -> R.drawable.galletas_veganas
-        "Torta de Boda" -> R.drawable.torta_boda
-        "Torta de cumpleaños" -> R.drawable.torta_cumple
-        else -> R.drawable.logo
+// Función auxiliar para elegir el ÍCONO VECTORIAL según el nombre
+private fun getProductoIcon(nombre: String): ImageVector {
+    return when {
+        nombre.contains("Galleta", ignoreCase = true) -> Icons.Default.Cookie
+        nombre.contains("Torta", ignoreCase = true) -> Icons.Default.Cake
+        nombre.contains("Cheesecake", ignoreCase = true) -> Icons.Default.Cake
+        else -> Icons.Default.BakeryDining
     }
 }
 
@@ -65,22 +56,23 @@ private fun getProductoImagenId(nombre: String): Int {
 fun DrawerMenu(
     username: String,
     navController: NavController,
-    // Inyectamos el ViewModel que ya tiene la lógica de la API
     postreViewModel: PostreViewModel = viewModel()
 ){
-    // Observamos la lista que viene de la API (definida en PostreViewModel.kt)
     val listaPastelesApi by postreViewModel.postList.collectAsState()
 
     val separador = Color(0xFF623608)
     val itemTextColor = Color(0xFF623608)
     val itemIconSize = 30.dp
     val itemTextSize = 17.sp
+
+    // Colores para la lista de productos
     val itemColors = NavigationDrawerItemDefaults.colors(
         unselectedTextColor = itemTextColor,
         unselectedIconColor = itemTextColor
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Encabezado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,46 +90,87 @@ fun DrawerMenu(
             )
         }
 
+        // Lista
         LazyColumn(modifier = Modifier
             .weight(1f)
             .background(Color(0xFFEAD3AC))
         ){
-            // Aquí ocurre la magia: Iteramos sobre la lista de la API
+            // --- 1. BOTÓN VER CARRITO (Estilo Botón) ---
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp), // Margen alrededor del botón
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(
+                        onClick = { navController.navigate("CarritoScreen") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF7C460D) // Color Café del tema
+                        ),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "VER MI CARRITO",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+                Divider(color = separador, thickness = 2.dp)
+            }
+
+            // --- 2. LISTA DE PRODUCTOS ---
             if (listaPastelesApi.isEmpty()) {
                 item {
                     Text(
                         text = "Cargando productos...",
-                        modifier = Modifier.padding(16.dp),
-                        color = itemTextColor
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        color = itemTextColor,
+                        textAlign = TextAlign.Center
                     )
                 }
             } else {
                 items(listaPastelesApi) { postre ->
-                    val imageId = getProductoImagenId(postre.nombre)
+                    val iconVector = getProductoIcon(postre.nombre)
 
                     NavigationDrawerItem(
                         label = {
                             Column {
                                 Text(postre.nombre, fontSize = itemTextSize)
-                                Text("$${postre.precio}", fontSize = 14.sp, color = Color.Gray)
+                                Text(
+                                    text = "$${postre.precio}",
+                                    fontSize = 14.sp,
+                                    color = Color.DarkGray
+                                )
                             }
                         },
                         selected = false,
                         onClick = {
-                            // Navegación dinámica usando los datos de la API
                             val nombreCodificado = Uri.encode(postre.nombre)
                             navController.navigate("CatalogoFormScreen/$nombreCodificado/${postre.precio}")
                         },
                         icon = {
-                            // Usamos la imagen real en lugar del icono genérico si lo prefieres
-                            Image(
-                                painter = painterResource(id = imageId),
+                            Icon(
+                                imageVector = iconVector,
                                 contentDescription = postre.nombre,
-                                modifier = Modifier.size(itemIconSize)
+                                modifier = Modifier.size(itemIconSize),
+                                tint = itemTextColor
                             )
                         },
-                        colors = itemColors,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        colors = itemColors
                     )
                     Divider(color = separador, thickness = 1.dp)
                 }
@@ -147,7 +180,7 @@ fun DrawerMenu(
         // Footer
         Text(
             text = "@ 2025 Pasteleria Mil Sabores\nUsuario: $username",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFFCEB487))

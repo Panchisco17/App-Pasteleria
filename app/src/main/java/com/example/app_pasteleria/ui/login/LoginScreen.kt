@@ -211,7 +211,7 @@ fun LoginScreen(
 
                 Button(onClick = {
                     vm.submit { user ->
-                        navController.navigate("DrawerMenu/user")
+                        navController.navigate("DrawerMenu/$user")
                         {
                             popUpTo("login") { inclusive = true }
                             launchSingleTop = true
