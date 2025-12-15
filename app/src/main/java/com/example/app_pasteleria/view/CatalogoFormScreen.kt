@@ -70,6 +70,7 @@ fun CatalogoFormScreen(
     var cantidad by remember { mutableStateOf(TextFieldValue("")) }
     var descuentoInput by remember { mutableStateOf(TextFieldValue("")) }
     var aplicarDescuento by remember { mutableStateOf(false) }
+    var comentario by remember { mutableStateOf("") }
 
     var showQrScanner by remember { mutableStateOf(false) }
     val qrViewModel: QrViewModel = viewModel()
@@ -249,6 +250,18 @@ fun CatalogoFormScreen(
                         } // fin item cantidad
 
                         item {
+                            OutlinedTextField(
+                                value = comentario,
+                                onValueChange = { comentario = it },
+                                label = { Text("Comentario", color = MaterialTheme.colorScheme.onSurface) },
+                                placeholder = { Text("Ej: Sin nueces, escribir 'Feliz día'...") },
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 3
+                            )
+                        }
+
+
+                        item {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -318,9 +331,13 @@ fun CatalogoFormScreen(
                                     val catalogo = Catalogo(
                                         nombre = nombre,
                                         precio = precioTotalAGuardar,
-                                        cantidad = cantidad.text
+                                        cantidad = cantidad.text,
+                                        comentario = comentario
                                     )
                                     viewModel.guardarPastel(catalogo)
+                                    cantidad = TextFieldValue("")
+                                    comentario = ""
+
                                 },
                                 enabled = isButtonEnabled
                             )
@@ -356,6 +373,10 @@ fun CatalogoFormScreen(
                                             text = "Cantidad: ${catalogo.cantidad}",
                                             style = MaterialTheme.typography.bodyMedium
                                         ) // fin text cantidad
+
+                                        if (catalogo.comentario.isNotEmpty()){
+                                            Text("Nota: ${catalogo.comentario}", style = MaterialTheme.typography.bodySmall, color = Color.Gray) }
+
 
                                     }
                                 }

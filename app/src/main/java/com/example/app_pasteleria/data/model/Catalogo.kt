@@ -9,5 +9,6 @@ data class Catalogo(
     val id :Int = 0,
     val nombre : String,
     val precio :String,
-    val cantidad : String
+    val cantidad : String,
+    val comentario :String=""
 )

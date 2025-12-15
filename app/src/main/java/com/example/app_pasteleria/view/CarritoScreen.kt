@@ -86,6 +86,16 @@ fun CarritoScreen(
                                         fontSize = 16.sp
                                     )
                                     Text(text = "$${producto.precio}", fontWeight = FontWeight.Bold, color = Color.DarkGray)
+
+                                    if (producto.comentario.isNotEmpty()) {
+                                        Text(
+                                            text = "Nota: ${producto.comentario}",
+                                            fontSize = 12.sp,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(bottom = 4.dp)
+                                        )
+                                    }
+
                                 }
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
