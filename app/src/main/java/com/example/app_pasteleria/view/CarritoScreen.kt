@@ -86,7 +86,6 @@ fun CarritoScreen(
                                         fontSize = 16.sp
                                     )
                                     Text(text = "$${producto.precio}", fontWeight = FontWeight.Bold, color = Color.DarkGray)
-
                                 }
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {

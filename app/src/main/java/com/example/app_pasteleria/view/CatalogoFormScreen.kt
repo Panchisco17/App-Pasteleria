@@ -248,7 +248,6 @@ fun CatalogoFormScreen(
                             )
                         } // fin item cantidad
 
-
                         item {
                             Row(
                                 modifier = Modifier
@@ -320,11 +319,8 @@ fun CatalogoFormScreen(
                                         nombre = nombre,
                                         precio = precioTotalAGuardar,
                                         cantidad = cantidad.text
-
                                     )
                                     viewModel.guardarPastel(catalogo)
-
-
                                 },
                                 enabled = isButtonEnabled
                             )
@@ -360,7 +356,6 @@ fun CatalogoFormScreen(
                                             text = "Cantidad: ${catalogo.cantidad}",
                                             style = MaterialTheme.typography.bodyMedium
                                         ) // fin text cantidad
-
 
                                     }
                                 }
